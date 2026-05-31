@@ -22,7 +22,6 @@ class StockAgent:
         self._log(f" Hamdard University AI Lab | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         self._log("=" * 65)
 
-    # ── Internal Model: Perceive Environment ─────────────────────────────────
 
     def _perceive(self, row: pd.Series) -> dict:
         """Extract current state from environment (inventory row)."""
@@ -57,7 +56,6 @@ class StockAgent:
         """
         return max(int(avg_daily * days_buffer), 1)
 
-    # ── Goal Evaluation ───────────────────────────────────────────────────────
 
     def _evaluate_goal(self, days_remaining: float) -> str:
         """
@@ -73,7 +71,6 @@ class StockAgent:
         else:
             return 'SAFE'
 
-    # ── Logging ───────────────────────────────────────────────────────────────
 
     def _log(self, msg: str):
         self._log_lines.append(msg)
@@ -81,7 +78,6 @@ class StockAgent:
     def get_log(self) -> str:
         return "\n".join(self._log_lines)
 
-    # ── Main Analysis Loop ────────────────────────────────────────────────────
 
     def analyze(self, df: pd.DataFrame):
         """
@@ -102,15 +98,12 @@ class StockAgent:
             current_stock = state['current_stock']
             sales_history = state['sales_history']
 
-            # Compute internal model
             avg_daily = self._compute_consumption_rate(sales_history)
             days_remaining = self._predict_days_remaining(current_stock, avg_daily)
             reorder_qty = self._recommend_reorder(avg_daily)
 
-            # Evaluate goal constraint
             status = self._evaluate_goal(days_remaining)
 
-            # Log agent output
             if status == 'CRITICAL':
                 self._log(f"  [🚨 CRITICAL] {product}")
                 self._log(f"    → Stock: {int(current_stock)} units | Avg daily: {avg_daily} units")
