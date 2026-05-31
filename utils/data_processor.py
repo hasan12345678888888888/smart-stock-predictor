@@ -45,11 +45,39 @@ class DataProcessor:
         df = self._clean_data(df)
         return df
 
-    def process_uploaded_data(self, df_raw: pd.DataFrame) -> pd.DataFrame:
-        """Process user-uploaded CSV after basic validation."""
-        df_raw.columns = df_raw.columns.str.strip().str.lower()
-        df_raw = self._clean_data(df_raw)
-        return df_raw
+  def process_uploaded_data(self, df_raw: pd.DataFrame) -> pd.DataFrame:
+    """Process user-uploaded CSV after basic validation."""
+    df_raw.columns = df_raw.columns.str.strip().str.lower()
+    
+    if 'product_id' in df_raw.columns and 'product' not in df_raw.columns:
+        # This file has Date, Product_ID, Units_Sold, Stock_Left format
+        # Convert to our required format: product, day_1..day_10, current_stock
+        df_raw['date'] = pd.to_datetime(df_raw['date'])
+        df_raw = df_raw.sort_values('date', ascending=False)
+        
+        latest_date = df_raw['date'].max()
+        current_stock_map = df_raw[df_raw['date'] == latest_date].set_index('product_id')['stock_left'].to_dict()
+        
+        last_10_dates = sorted(df_raw['date'].unique())[-10:]
+        df_10 = df_raw[df_raw['date'].isin(last_10_dates)]
+        
+        records = []
+        for pid in df_raw['product_id'].unique():
+            p_data = df_10[df_10['product_id'] == pid].sort_values('date', ascending=False)
+            sales = p_data['units_sold'].values[:10]
+            import numpy as np
+            while len(sales) < 10:
+                sales = np.append(sales, int(np.mean(sales)))
+            row = {'product': pid}
+            for i, s in enumerate(sales[:10]):
+                row[f'day_{i+1}'] = int(s)
+            row['current_stock'] = current_stock_map.get(pid, 0)
+            records.append(row)
+        
+        df_raw = pd.DataFrame(records)
+    
+    df_raw = self._clean_data(df_raw)
+    return df_raw
 
     def _clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -60,7 +88,6 @@ class DataProcessor:
         """
         day_cols = [c for c in df.columns if c.startswith('day_')]
         
-        # Mean imputation: fill NaN with row mean of available values
         for col in day_cols:
             df[col] = pd.to_numeric(df[col], errors='coerce')
         
@@ -68,7 +95,6 @@ class DataProcessor:
         for col in day_cols:
             df[col] = df[col].fillna(row_means)
         
-        # Ensure stock is numeric
         df['current_stock'] = pd.to_numeric(df['current_stock'], errors='coerce').fillna(0)
         
         return df
