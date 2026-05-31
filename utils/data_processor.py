@@ -60,7 +60,6 @@ class DataProcessor:
         """
         day_cols = [c for c in df.columns if c.startswith('day_')]
         
-        # Mean imputation: fill NaN with row mean of available values
         for col in day_cols:
             df[col] = pd.to_numeric(df[col], errors='coerce')
         
@@ -68,7 +67,6 @@ class DataProcessor:
         for col in day_cols:
             df[col] = df[col].fillna(row_means)
         
-        # Ensure stock is numeric
         df['current_stock'] = pd.to_numeric(df['current_stock'], errors='coerce').fillna(0)
         
         return df
