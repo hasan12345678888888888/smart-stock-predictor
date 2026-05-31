@@ -5,7 +5,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 
-# ── Color Palette ─────────────────────────────────────────────────────────────
 COLORS = {
     'CRITICAL': '#ff4444',
     'WARNING':  '#ffa500',
@@ -38,7 +37,6 @@ class Visualizer:
             margin=dict(l=50, r=30, t=60, b=50),
         )
 
-    # ── Chart 1: Daily Sales Trends ───────────────────────────────────────────
     def plot_sales_trends(self, df: pd.DataFrame) -> go.Figure:
         """Line chart of daily sales per product over 10 days."""
         day_cols = [c for c in df.columns if c.startswith('day_')]
@@ -50,7 +48,6 @@ class Visualizer:
             color = PRODUCT_COLORS[i % len(PRODUCT_COLORS)]
             status = row.get('status', 'SAFE')
             
-            # Dashed line for critical products
             dash_style = 'dash' if status == 'CRITICAL' else 'solid'
             width = 3 if status in ('CRITICAL', 'WARNING') else 2
 
@@ -77,7 +74,6 @@ class Visualizer:
         fig.update_layout(**layout)
         return fig
 
-    # ── Chart 2: Stock Duration Bar Chart ────────────────────────────────────
     def plot_stock_duration(self, df: pd.DataFrame, critical: int, warning: int) -> go.Figure:
         """Horizontal bar chart of days remaining per product, color-coded."""
         
@@ -109,7 +105,6 @@ class Visualizer:
             )
         ))
 
-        # Threshold lines
         fig.add_vline(x=critical, line_dash="dash", line_color=COLORS['CRITICAL'],
                       annotation_text=f"Critical ({critical}d)",
                       annotation_font_color=COLORS['CRITICAL'])
@@ -125,7 +120,6 @@ class Visualizer:
         fig.update_layout(**layout)
         return fig
 
-    # ── Chart 3: Depletion Forecast ───────────────────────────────────────────
     def plot_depletion_forecast(self, df: pd.DataFrame) -> go.Figure:
         """
         Area chart showing projected stock level over next 20 days.
@@ -159,7 +153,6 @@ class Visualizer:
                 )
             ))
 
-        # Zero line
         fig.add_hline(y=0, line_dash="dot", line_color="#ff4444",
                       annotation_text="Stock Depleted", annotation_font_color="#ff4444")
 
