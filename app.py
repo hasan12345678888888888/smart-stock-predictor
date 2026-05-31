@@ -13,7 +13,6 @@ from agent.stock_agent import StockAgent
 from utils.data_processor import DataProcessor
 from utils.visualizer import Visualizer
 
-# ─── Page Config ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Smart Stock-Out Predictor",
     page_icon="📦",
@@ -21,7 +20,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ─── Custom CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -112,7 +110,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ─── Header ───────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="main-header">
     <h1>📦 Smart Stock-Out Predictor</h1>
@@ -121,7 +118,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ─── Sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
     st.markdown("---")
@@ -170,7 +166,6 @@ with st.sidebar:
     st.markdown("Hamdard University, Karachi")
 
 
-# ─── Load & Process Data ──────────────────────────────────────────────────────
 processor = DataProcessor()
 agent = StockAgent(critical_threshold=critical_threshold, warning_threshold=warning_threshold)
 visualizer = Visualizer()
@@ -182,10 +177,8 @@ if data_source == "Upload CSV File" and uploaded_file is not None:
 else:
     df = processor.load_sample_data()
 
-# Run AI Agent
 alerts, df_analyzed = agent.analyze(df)
 
-# ─── KPI Metrics Row ─────────────────────────────────────────────────────────
 st.markdown('<div class="section-title">📊 Inventory Overview</div>', unsafe_allow_html=True)
 
 total_products = len(df_analyzed)
@@ -205,7 +198,6 @@ with col4:
 
 st.markdown("---")
 
-# ─── AI Agent Alerts ─────────────────────────────────────────────────────────
 col_alerts, col_table = st.columns([1, 1.5])
 
 with col_alerts:
@@ -248,7 +240,6 @@ with col_table:
 
 st.markdown("---")
 
-# ─── Visualizations ──────────────────────────────────────────────────────────
 st.markdown('<div class="section-title">📈 Sales Trend Dashboard</div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3 = st.tabs(["📉 Daily Consumption Trends", "📊 Stock Duration Comparison", "🔮 Depletion Forecast"])
@@ -267,14 +258,12 @@ with tab3:
 
 st.markdown("---")
 
-# ─── Agent Log ───────────────────────────────────────────────────────────────
 st.markdown('<div class="section-title">🖥️ Agent Evaluation Log</div>', unsafe_allow_html=True)
 
 with st.expander("📟 View Full Terminal Log", expanded=True):
     log_text = agent.get_log()
     st.code(log_text, language="bash")
 
-# ─── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown(
     "<p style='text-align:center; color:#666; font-size:0.8rem;'>"
